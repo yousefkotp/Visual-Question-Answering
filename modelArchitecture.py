@@ -16,17 +16,23 @@ class VQAModel(nn.Module):
         super(VQAModel, self).__init__()
         self.device = device
         self.model_name = model_name
-        self.clip_model, _ = clip.load(model_name, device=device)
+        self.clip_model, self.preprocess = clip.load(model_name, device = device)
+
         for param in self.clip_model.parameters():
             param.requires_grad = False
         self.linear_layer = nn.Linear(512, num_classes)
 
     def forward(self, image, question):
+
         with torch.no_grad():
+
+            image = self.preprocess(image).unsqueeze(0).to(self.device)
             image_features = self.clip_model.encode_image(image).float()
+
             text_tokens = clip.tokenize(question).to(self.device)
             text_features = self.clip_model.encode_text(text_tokens).float()
-        features = torch.cat((image_features, text_features), dim=1)
+
+        features = torch.cat((image_features, text_features), dim=1) # Concatenate image and text features
         output = self.linear_layer(features)
         return output
     

@@ -4,8 +4,6 @@ import torch.nn.functional as F
 import clip
 import matplotlib.pyplot as plt
 import numpy as np
-# use cuda if available
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
 class VQAModel(nn.Module):
@@ -116,12 +114,11 @@ class VQAModel(nn.Module):
         print("Vocab size:", vocab_size)
 
         print(self.clip_model)
-        print(self.linear_layer)
-
 
 model = VQAModel(10, "ViT-B/32", "cpu")
 model.print_CLIP_model()
 print(clip.available_models())
+
 
 '''
 dataset = MyVQADataset(...)

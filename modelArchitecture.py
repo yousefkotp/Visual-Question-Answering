@@ -8,19 +8,36 @@ import numpy as np
 
 class VQAModel(nn.Module):
 
-    training_losses = []
-    validation_losses = []
-
-
-    def __init__(self, num_classes, model_name = "ViT-B/32", device = "cpu"):
+    def __init__(self, num_classes, hidden_size, model_name = "RN50x64", device = "cpu"):
         super(VQAModel, self).__init__()
+
+        self.training_losses = []
+        self.validation_losses = []
         self.device = device
         self.model_name = model_name
         self.clip_model, self.preprocess = clip.load(model_name, device = device)
-
+        
         for param in self.clip_model.parameters():
             param.requires_grad = False
-        self.linear_layer = nn.Linear(512, num_classes)
+
+        # now let's add our own layers
+        self.linear_layer1 = nn.Sequential(
+            nn.Linear(self.clip_model.visual.output_dim + self.clip_model.text_projection.shape[1], hidden_size),
+            nn.LayerNorm(hidden_size),
+            nn.Dropout(p=0.5)
+        )
+
+        self.linear_layer2 = nn.Sequential(
+            nn.Linear(hidden_size, num_classes),
+            nn.LayerNorm(hidden_size),
+            nn.Dropout(p=0.5)
+        )
+
+        self.answer_type_layer = nn.Linear(hidden_size, 8)
+        self.answer_mask_layer = nn.Linear(8, num_classes)
+
+        self.softmax = nn.Softmax(dim=1)
+        self.sigmoid = nn.Sigmoid()
 
     def forward(self, image, question):
 
@@ -33,14 +50,27 @@ class VQAModel(nn.Module):
             text_features = self.clip_model.encode_text(text_tokens).float()
 
         features = torch.cat((image_features, text_features), dim=1) # Concatenate image and text features
-        output = self.linear_layer(features)
-        return output
+        features = self.linear_layer1(features)
+
+        answer_type = self.answer_type_layer(features)
+        final_answer_type = self.softmax(answer_type)
+
+        answer_mask = self.answer_mask_layer(answer_type)
+        answer_mask = self.sigmoid(answer_mask)
+
+        output = self.linear_layer2(features)
+
+        output = output * answer_mask
+
+        output = self.softmax(output)
+
+        return output, final_answer_type
     
-    def train_model(self, dataloader, criterion, optimizer, epochs = 10, device = "cpu", save_path = None, save_every = 1):
+    def train_model(self, dataloader, criterion, optimizer, epochs = 10, save_path = None, save_every = 1):
         for epoch in range(1,epochs+1):
 
-            training_loss = self.training_step(dataloader, criterion, optimizer, device)
-            validation_loss = self.validation_step(dataloader, criterion, device)
+            training_loss = self.training_step(dataloader, criterion, optimizer, self.device)
+            validation_loss = self.validation_step(dataloader, criterion, self.device)
 
             self.training_losses.append(training_loss)
             self.validation_losses.append(validation_loss)
@@ -55,12 +85,14 @@ class VQAModel(nn.Module):
 
     def training_step(self, dataloader, criterion, optimizer, device = "cpu"):
         training_loss = 0.0
+        model.cuda().train() if self.device == "cuda" else self.train()
         for batch in dataloader:
             images, questions, labels = batch
             images, questions, labels = images.to(device), questions.to(device), labels.to(device)
             optimizer.zero_grad()
-            predictions = self.forward(images, questions)
-            loss = criterion(predictions, labels)
+            output, answer_type = self.forward(images, questions)
+            
+            loss = criterion(output, labels) + criterion(answer_type, labels)
             loss.backward()
             optimizer.step()
             training_loss += loss.item()
@@ -69,16 +101,16 @@ class VQAModel(nn.Module):
     
     def validation_step(self, dataloader, criterion, device = "cpu"):
         validation_loss = 0.0
+        self.cuda().eval() if self.device == "cuda" else self.eval()
         with torch.no_grad():
             for batch in dataloader:
                 images, questions, labels = batch
                 images, questions, labels = images.to(device), questions.to(device), labels.to(device)
-                predictions = self.forward(images, questions)
-                loss = criterion(predictions, labels)
+                output, answer_type = self.forward(images, questions)
+                loss = criterion(output, labels) + criterion(answer_type, labels)
                 validation_loss += loss.item()
         validation_loss /= len(dataloader)
         return validation_loss
-
 
     def save_model(self, path):
         torch.save(self.state_dict(), path)
@@ -89,13 +121,11 @@ class VQAModel(nn.Module):
         return self
     
     def predict(self, image, question):
-        output = self.forward(image, question)
-        _, predicted = torch.max(output.data, 1)
-        return predicted
+        output, answer_type = self.forward(image, question)
+        _, predicted_answer = torch.max(output.data, 1)
+        _, predicted_answer_type = torch.max(answer_type.data, 1)
+        return predicted_answer, predicted_answer_type
     
-    def predict_prob(self, image, question):
-        output = self.forward(image, question)
-        return F.softmax(output, dim=1)
     
     def plot_history(self):
         plt.plot(self.training_losses, label = "Training Loss")
@@ -104,10 +134,8 @@ class VQAModel(nn.Module):
         plt.show()
 
     def print_CLIP_model(self):
-        if self.device == "cpu":
-            self.clip_model.eval()
-        else:
-            self.clip_model.cuda().eval()
+
+        self.clip_model.cuda().eval() if self.device == "cuda" else self.eval()
 
         input_resolution = self.clip_model.visual.input_resolution
         context_length = self.clip_model.context_length
@@ -134,12 +162,11 @@ dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
 
 model = VQAModel(num_classes, model_name, device)
 
-for batch in dataloader:
-    images, questions, labels = batch
-    images, questions, labels = images.to(device), questions.to(device), labels.to(device)
-    predictions = model.predict(images, questions)
-    loss = criterion(predictions, labels)
-    loss.backward()
-    optimizer.step()
+criterion = nn.CrossEntropyLoss()
+optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
+
+model.train_model(dataloader, criterion, optimizer, epochs = 10, save_path = "models/", save_every = 1)
+model.plot_history()
+
 
 '''

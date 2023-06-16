@@ -34,8 +34,8 @@ class VQAModel(nn.Module):
             nn.Dropout(p=0.5)
         )
 
-        self.answer_type_layer = nn.Linear(hidden_size, 8)
-        self.answer_mask_layer = nn.Linear(8, num_classes)
+        self.answer_type_layer = nn.Linear(hidden_size, 4)
+        self.answer_mask_layer = nn.Linear(4, num_classes)
 
         self.softmax = nn.Softmax(dim=1)
         self.sigmoid = nn.Sigmoid()

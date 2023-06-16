@@ -85,13 +85,13 @@ class VQAModel(nn.Module):
 
     def training_step(self, dataloader, criterion, optimizer, device = "cpu"):
         training_loss = 0.0
-        model.cuda().train() if self.device == "cuda" else self.train()
+        self.cuda().train() if self.device == "cuda" else self.train()
         for batch in dataloader:
             images, questions, labels = batch
             images, questions, labels = images.to(device), questions.to(device), labels.to(device)
             optimizer.zero_grad()
             output, answer_type = self.forward(images, questions)
-            
+
             loss = criterion(output, labels) + criterion(answer_type, labels)
             loss.backward()
             optimizer.step()
@@ -149,9 +149,7 @@ class VQAModel(nn.Module):
 
         print(self.clip_model)
 
-model = VQAModel(10, "ViT-B/32", "cpu")
-model.print_CLIP_model()
-print(clip.available_models())
+
 
 
 '''
@@ -168,5 +166,9 @@ optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
 model.train_model(dataloader, criterion, optimizer, epochs = 10, save_path = "models/", save_every = 1)
 model.plot_history()
 
+
+model = VQAModel(10, "RN50x64", "cpu")
+model.print_CLIP_model()
+print(clip.available_models())
 
 '''

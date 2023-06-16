@@ -41,16 +41,8 @@ class VQAModel(nn.Module):
         self.sigmoid = nn.Sigmoid()
 
     def forward(self, image, question):
-
-        with torch.no_grad():
-
-            image = self.preprocess(image).unsqueeze(0).to(self.device)
-            image_features = self.clip_model.encode_image(image).float()
-
-            text_tokens = clip.tokenize(question).to(self.device)
-            text_features = self.clip_model.encode_text(text_tokens).float()
-
-        features = torch.cat((image_features, text_features), dim=1) # Concatenate image and text features
+        
+        features = torch.cat((image, question), dim=1) # Concatenate image and text features
         features = self.linear_layer1(features)
 
         answer_type = self.answer_type_layer(features)
@@ -69,7 +61,6 @@ class VQAModel(nn.Module):
     
     def train_model(self, training_dataloader, validation_dataloader, criterion, optimizer, epochs = 10, save_path = None, save_every = 1):
         for epoch in range(1,epochs+1):
-
             training_loss = self.training_step(training_dataloader, criterion, optimizer, self.device)
             validation_loss = self.validation_step(validation_dataloader, criterion, self.device)
 
@@ -87,8 +78,7 @@ class VQAModel(nn.Module):
     def training_step(self, dataloader, criterion, optimizer, device):
         training_loss = 0.0
         self.train()
-        for batch in dataloader:
-
+        for _, batch in enumerate(dataloader):
             image, question, answer, answer_type = batch
             image, question, answer, answer_type = image.to(device), question.to(device), answer.to(device), answer_type.to(device)
 
@@ -101,19 +91,20 @@ class VQAModel(nn.Module):
             training_loss += loss.item()
         training_loss /= len(dataloader)
         return training_loss
+            
     
     def validation_step(self, dataloader, criterion, device):
         validation_loss = 0.0
         self.eval()
         with torch.no_grad():
-            for batch in dataloader:
+            for _, batch in enumerate(dataloader):
                 image, question, answer, answer_type = batch
                 image, question, answer, answer_type = image.to(device), question.to(device), answer.to(device), answer_type.to(device)
                 output, answer_type_predicted = self.forward(image, question)
                 loss = criterion(output, output) + criterion(answer_type, answer_type_predicted)
                 validation_loss += loss.item()
         validation_loss /= len(dataloader)
-        return validation_loss
+        return validation_loss                
 
     def save_model(self, path):
         torch.save(self.state_dict(), path)

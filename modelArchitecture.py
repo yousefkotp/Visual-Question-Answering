@@ -125,8 +125,8 @@ class VQAModel(nn.Module):
     
     def predict(self, image, question):
         output, answer_type = self.forward(image, question)
-        predicted_answer = torch.argmax(output.data, dim = 1)
-        predicted_answer_type = torch.argmax(answer_type.data, dim = 1)
+        predicted_answer = torch.argmax(output, dim = 1)
+        predicted_answer_type = torch.argmax(answer_type, dim = 1)
         return predicted_answer, predicted_answer_type
     
     def plot_history(self):

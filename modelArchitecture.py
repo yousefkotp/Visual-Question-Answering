@@ -8,7 +8,7 @@ import numpy as np
 
 class VQAModel(nn.Module):
 
-    def __init__(self, num_classes, hidden_size, model_name = "RN50x64", device = "cpu"):
+    def __init__(self, num_classes, hidden_size, model_name = "RN50x64", device = torch.device("cpu")):
         super(VQAModel, self).__init__()
 
         self.training_losses = []
@@ -66,11 +66,11 @@ class VQAModel(nn.Module):
 
         return output, final_answer_type
     
-    def train_model(self, dataloader, criterion, optimizer, epochs = 10, save_path = None, save_every = 1):
+    def train_model(self, training_dataloader, validation_dataloader, criterion, optimizer, epochs = 10, save_path = None, save_every = 1):
         for epoch in range(1,epochs+1):
 
-            training_loss = self.training_step(dataloader, criterion, optimizer, self.device)
-            validation_loss = self.validation_step(dataloader, criterion, self.device)
+            training_loss = self.training_step(training_dataloader, criterion, optimizer, self.device)
+            validation_loss = self.validation_step(validation_dataloader, criterion, self.device)
 
             self.training_losses.append(training_loss)
             self.validation_losses.append(validation_loss)
@@ -83,7 +83,7 @@ class VQAModel(nn.Module):
         return self.training_losses, self.validation_losses
 
 
-    def training_step(self, dataloader, criterion, optimizer, device = "cpu"):
+    def training_step(self, dataloader, criterion, optimizer, device):
         training_loss = 0.0
         self.cuda().train() if self.device == "cuda" else self.train()
         for batch in dataloader:
@@ -99,7 +99,7 @@ class VQAModel(nn.Module):
         training_loss /= len(dataloader)
         return training_loss
     
-    def validation_step(self, dataloader, criterion, device = "cpu"):
+    def validation_step(self, dataloader, criterion, device):
         validation_loss = 0.0
         self.cuda().eval() if self.device == "cuda" else self.eval()
         with torch.no_grad():
@@ -126,7 +126,6 @@ class VQAModel(nn.Module):
         _, predicted_answer_type = torch.max(answer_type.data, 1)
         return predicted_answer, predicted_answer_type
     
-    
     def plot_history(self):
         plt.plot(self.training_losses, label = "Training Loss")
         plt.plot(self.validation_losses, label = "Validation Loss")
@@ -148,8 +147,6 @@ class VQAModel(nn.Module):
         print("Vocab size:", vocab_size)
 
         print(self.clip_model)
-
-
 
 
 '''

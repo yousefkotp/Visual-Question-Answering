@@ -88,12 +88,14 @@ class VQAModel(nn.Module):
         training_loss = 0.0
         self.train()
         for batch in dataloader:
-            images, questions, labels = batch
-            images, questions, labels = images.to(device), questions.to(device), labels.to(device)
-            optimizer.zero_grad()
-            output, answer_type = self.forward(images, questions)
 
-            loss = criterion(output, labels) + criterion(answer_type, labels)
+            image, question, answer, answer_type = batch
+            image, question, answer, answer_type = image.to(device), question.to(device), answer.to(device), answer_type.to(device)
+
+            optimizer.zero_grad()
+            output, answer_type_predicted = self.forward(image, question)
+
+            loss = criterion(output, answer) + criterion(answer_type, answer_type_predicted)
             loss.backward()
             optimizer.step()
             training_loss += loss.item()
@@ -105,10 +107,10 @@ class VQAModel(nn.Module):
         self.eval()
         with torch.no_grad():
             for batch in dataloader:
-                images, questions, labels = batch
-                images, questions, labels = images.to(device), questions.to(device), labels.to(device)
-                output, answer_type = self.forward(images, questions)
-                loss = criterion(output, labels) + criterion(answer_type, labels)
+                image, question, answer, answer_type = batch
+                image, question, answer, answer_type = image.to(device), question.to(device), answer.to(device), answer_type.to(device)
+                output, answer_type_predicted = self.forward(image, question)
+                loss = criterion(output, output) + criterion(answer_type, answer_type_predicted)
                 validation_loss += loss.item()
         validation_loss /= len(dataloader)
         return validation_loss

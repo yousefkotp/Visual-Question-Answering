@@ -4,6 +4,7 @@ import torch.nn.functional as F
 import clip
 import matplotlib.pyplot as plt
 import numpy as np
+from PIL import Image
 
 
 class VQAModel(nn.Module):
@@ -131,6 +132,20 @@ class VQAModel(nn.Module):
         plt.plot(self.validation_losses, label = "Validation Loss")
         plt.legend()
         plt.show()
+
+    def test_model(self, image_path, question):
+        image = Image.open(image_path)
+        image = image.convert('RGB')
+        image = np.array(image)
+        image = image / 255.0
+        image = torch.tensor(image)
+        image = image.permute(2,0,1)
+        image = image.unsqueeze(0)
+        image = image.float()
+
+        predicted_answer, predicted_answer_type = self.predict(image, question)
+        print("Predicted Answer:", predicted_answer.item())
+        print("Predicted Answer Type:", predicted_answer_type.item())
 
     def print_CLIP_model(self):
 

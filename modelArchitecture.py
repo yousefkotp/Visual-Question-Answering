@@ -86,7 +86,7 @@ class VQAModel(nn.Module):
 
     def training_step(self, dataloader, criterion, optimizer, device):
         training_loss = 0.0
-        self.cuda().train() if self.device == "cuda" else self.train()
+        self.train()
         for batch in dataloader:
             images, questions, labels = batch
             images, questions, labels = images.to(device), questions.to(device), labels.to(device)
@@ -102,7 +102,7 @@ class VQAModel(nn.Module):
     
     def validation_step(self, dataloader, criterion, device):
         validation_loss = 0.0
-        self.cuda().eval() if self.device == "cuda" else self.eval()
+        self.eval()
         with torch.no_grad():
             for batch in dataloader:
                 images, questions, labels = batch
@@ -123,8 +123,8 @@ class VQAModel(nn.Module):
     
     def predict(self, image, question):
         output, answer_type = self.forward(image, question)
-        _, predicted_answer = torch.max(output.data, 1)
-        _, predicted_answer_type = torch.max(answer_type.data, 1)
+        predicted_answer = torch.argmax(output.data, dim = 1)
+        predicted_answer_type = torch.argmax(answer_type.data, dim = 1)
         return predicted_answer, predicted_answer_type
     
     def plot_history(self):
@@ -135,21 +135,11 @@ class VQAModel(nn.Module):
 
     def test_model(self, image_path, question):
         image = Image.open(image_path)
-        image = image.convert('RGB')
-        image = np.array(image)
-        image = image / 255.0
-        image = torch.tensor(image)
-        image = image.permute(2,0,1)
-        image = image.unsqueeze(0)
-        image = image.float()
-
         predicted_answer, predicted_answer_type = self.predict(image, question)
         print("Predicted Answer:", predicted_answer.item())
         print("Predicted Answer Type:", predicted_answer_type.item())
 
     def print_CLIP_model(self):
-
-        self.clip_model.cuda().eval() if self.device == "cuda" else self.eval()
 
         input_resolution = self.clip_model.visual.input_resolution
         context_length = self.clip_model.context_length
@@ -160,9 +150,6 @@ class VQAModel(nn.Module):
         print("Input resolution:", input_resolution)
         print("Context length:", context_length)
         print("Vocab size:", vocab_size)
-
-        print(self.clip_model)
-
 
 '''
 dataset = MyVQADataset(...)

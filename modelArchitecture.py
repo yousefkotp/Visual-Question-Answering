@@ -30,7 +30,7 @@ class VQAModel(nn.Module):
 
         self.linear_layer2 = nn.Sequential(
             nn.Linear(hidden_size, num_classes),
-            nn.LayerNorm(hidden_size),
+            nn.LayerNorm(num_classes),
             nn.Dropout(p=0.5)
         )
 
@@ -42,7 +42,10 @@ class VQAModel(nn.Module):
 
     def forward(self, image, question):
         
-        features = torch.cat((image, question), dim=1) # Concatenate image and text features
+        image = torch.flatten(image, start_dim=1)
+        question = torch.flatten(question, start_dim=1)
+        features = torch.cat((image, question), dim=1)
+        
         features = self.linear_layer1(features)
 
         answer_type = self.answer_type_layer(features)
@@ -104,7 +107,7 @@ class VQAModel(nn.Module):
                 loss = criterion(output, output) + criterion(answer_type, answer_type_predicted)
                 validation_loss += loss.item()
         validation_loss /= len(dataloader)
-        return validation_loss                
+        return validation_loss            
 
     def save_model(self, path):
         torch.save(self.state_dict(), path)
@@ -128,7 +131,14 @@ class VQAModel(nn.Module):
 
     def test_model(self, image_path, question):
         image = Image.open(image_path)
-        predicted_answer, predicted_answer_type = self.predict(image, question)
+        
+        image = self.preprocess(image).unsqueeze(0).to(self.device)
+        image_features = self.clip_model.encode_image(image)
+        
+        question =  clip.tokenize(question).to(self.device)
+        text_features = self.clip_model.encode_text(question).float()
+        
+        predicted_answer, predicted_answer_type = self.predict(image_features, text_features)
         print("Predicted Answer:", predicted_answer.item())
         print("Predicted Answer Type:", predicted_answer_type.item())
 

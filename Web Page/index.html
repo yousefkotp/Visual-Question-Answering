@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>Image Q&A!</title>
+        <link rel="stylesheet" href="styles.css">
+    </head>
+    <body>
+        
+        <!-- Create a div with a black border -->
+        <div class="container">
+            <div class="title-container">
+                <h1 class="main-title">Image Q&A!</h1>
+            </div>
+            <div class="image-container">
+                <img src="image.jpg">
+                <p class="help-text">Click on the image to upload a different one</p>
+                <strong></strong><h4 class="help-text">OR</h4></strong>
+                <p class="help-text">Enter image URL</p>
+                <input type="url" id="url-field" name="url-field">
+                <button class="url-button">Fetch</button>
+            </div>
+            <div class="question-container">
+                <h2 class="question-title">Ask about the image😁</h2>
+                <textarea type="text" id="question-input" placeholder="Enter your question here"></textarea>
+                <button class="question-button">Process</button>
+            </div>
+            <div class="answer-container">
+                <h2 class="answer-title">The answer to your query🤔</h2>
+                <textarea readonly type="text" id="answer-textarea"></textarea>
+            </div>
+        </div>
+
+        <script src="script.js" async defer></script>
+    </body>
+</html>

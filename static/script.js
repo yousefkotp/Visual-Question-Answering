@@ -11,12 +11,11 @@ function submitForm() {
 
         var answer = objectReceived.answer;
         var answer_type = objectReceived.answer_type;
-        var answerability = objectReceived.answerability;
-        console.log(answer);
+        var answerability = 1 - objectReceived.answerability;
 
         resultDiv.innerHTML = "<p>Answer: " + answer + "</p>" +
                                 "<p>Answer type: " + answer_type + "</p>" +
-                                "<p>Answerability(The confidence for being unanswerable): " + answerability + "</p>";
+                                "<p>Answerable: " + answerability + "</p>";
         } else {
         alert("An error occurred while trying to predict the answer.");
       }

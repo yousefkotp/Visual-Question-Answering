@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, request, jsonify, render_template, url_for
 import torch
 import pickle
 from vqa_model import VQAModel
@@ -24,6 +24,7 @@ model.load_model(MODEL_PATH)
 def home():
     return render_template('index.html')
 
+
 @app.route('/predict', methods=['POST'])
 def predict():
     # Get the image and question from the request
@@ -33,11 +34,11 @@ def predict():
     if 'image' in request.files:
         # The image is a file uploaded from a device
         image = request.files['image']
-        image_path = 'templates/static/user_image.jpg'
+        image_path = 'templates/user_image.jpg'
         image.save(image_path)
     elif image_url:
         # The image is a URL
-        image_path = 'templates/static/user_image.jpg'
+        image_path = 'templates/user_image.jpg'
         urllib.request.urlretrieve(image_url, image_path)
     else:
         # No image was provided

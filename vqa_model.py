@@ -259,7 +259,7 @@ class VQAModel(nn.Module):
         Returns:
         - self: the loaded model object
         """
-        self.load_state_dict(torch.load(path))
+        self.load_state_dict(torch.load(path, map_location=self.device))
         self.eval()
         return self
 

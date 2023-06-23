@@ -79,7 +79,9 @@ Here is the illustration of the model architecture
 - **Note:** We removed the drop out from answerability linear layer as it was causing a lot of noise in training answerability.
 
 ## Training
-We have trained the model on Kaggle using P100 cuda accelerator for a total of 50 epoch and picked the best one, we have a batch size of 32 (64 was bad in terms of variance), we used Adam optimized with a learning rate of 5e-4. No L2 regularization was used. The model was saved after each 5 epochs and the best model was picked based on the validation accuracy. We used the [PyTorch](https://pytorch.org/) library for building and training the model.
+We have trained the model on Kaggle using P100 cuda accelerator for a total of 50 epoch and picked the best one, each epoch took ~1 minute to finish. We have used a batch size of 32 (64 was bad in terms of variance), we used Adam optimized with a learning rate of 5e-4. No L2 regularization was used. The model was saved after each 5 epochs and the best model was picked based on the validation accuracy. We used the [PyTorch](https://pytorch.org/) library for building and training the model. 
+
+The best model was recorded at epoch 45 so, we will use that model for evaluation. 
 
 ### Loss Graphs
 

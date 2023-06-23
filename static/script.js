@@ -16,7 +16,7 @@ function submitForm() {
 
         resultDiv.innerHTML = "<p>Answer: " + answer + "</p>" +
                                 "<p>Answer type: " + answer_type + "</p>" +
-                                "<p>Answerability: " + answerability + "</p>";
+                                "<p>Answerability(The confidence for being unanswerable): " + answerability + "</p>";
         } else {
         alert("An error occurred while trying to predict the answer.");
       }

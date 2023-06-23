@@ -1,7 +1,7 @@
 # Visual Question Answering
 Welcome to our Visual Question Answering project! Our goal is to create an intelligent system that can answer questions about images to win the [VizWiz grand challenge](https://vizwiz.org/tasks-and-datasets/vqa/), using state-of-the-art deep learning techniques. With our approach, we aim to push the boundaries of what's possible in computer vision and natural language processing. Our dataset is carefully curated and preprocessed to ensure the best possible performance of our model. We've also created a user-friendly web application that allows you to interact with our system and see its capabilities in action. Whether you're a researcher, a developer, or just curious about the latest advances in AI, we invite you to explore our project and learn more about it.
 
-**Note:** We ranked in 4th place in [VizWiz VQA challenge](https://vizwiz.org/tasks-and-datasets/vqa/) with an accuracy of 54%. Our team "AFK" is on the [leaderboard](https://eval.ai/web/challenges/challenge-page/1911/leaderboard/4517) for challenge.
+**Note:** We have an official submission for [VizWiz VQA challenge](https://vizwiz.org/tasks-and-datasets/vqa/) where we ranked 4th with an accuracy of 54%. Our team "AFK" is on the [leaderboard](https://eval.ai/web/challenges/challenge-page/1911/leaderboard/4517) for challenge.
 
 <p align="center">
   <img src="Images/vizwiz_example.png" alt="VizWiz Example" width="500"/>

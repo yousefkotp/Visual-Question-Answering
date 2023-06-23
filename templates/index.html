@@ -2,17 +2,27 @@
 <html>
 <head>
     <title>VQA Web App</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
+
 </head>
 <body>
     <h1>VQA Web App</h1>
-    <form method="POST" action="/predict" enctype="multipart/form-data">
-        <label for="image">Image:</label><br>
-        <input type="file" id="image" name="image"><br><br>
-        <label for="image_url">Image URL:</label><br>
+    <form id="predict-form" enctype="multipart/form-data">
+
+        <label for="image_url">Image URL:</label>
         <input type="text" id="image_url" name="image_url"><br><br>
-        <label for="question">Question:</label><br>
+
+        <label for="image">Image:</label>
+        <input type="file" id="image" name="image"><br><br>
+
+        <label for="question">Question:</label>
         <input type="text" id="question" name="question"><br><br>
-        <input type="submit" value="Submit">
-    </form>
+
+        <input type="button" value="Submit" onclick="submitForm()">
+      </form>
+    <div id="result">
+
+    </div>
 </body>
+<script src="{{ url_for('static', filename='script.js') }}"></script>
 </html>

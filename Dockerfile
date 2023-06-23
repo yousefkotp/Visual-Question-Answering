@@ -4,11 +4,12 @@ WORKDIR /app
 
 COPY . /app
 
+RUN apt-get update && apt-get install -y git
+
+RUN pip install git+https://github.com/openai/CLIP.git 
+
 RUN pip install --trusted-host pypi.python.org -r requirements.txt
 
 EXPOSE 5000
 
 CMD ["python", "-m", "flask", "run"]
-
-# docker build -t vqa-flask-app .
-# docker run -p 5000:5000 vqa-flask-app

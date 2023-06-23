@@ -13,7 +13,7 @@ with open('Saved_Models/answer_type_onehotencoder.pkl', 'rb') as f:
     ANSWER_TYPE_ONEHOTENCODER = pickle.load(f)
 
 # Loading the model from the disk
-DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+DEVICE = torch.device("cpu")
 MODEL_NAME = "ViT-L/14@336px"
 NUM_CLASSES = 5410
 MODEL_PATH = "Saved_Models/model.pth"
@@ -22,23 +22,26 @@ model.load_model(MODEL_PATH)
 
 @app.route('/')
 def home():
-    return render_template('Web_Page/index.html')
+    return render_template('index.html')
 
 @app.route('/predict', methods=['POST'])
 def predict():
     # Get the image and question from the request
+    image_url = request.form.get('image_url')
+    question = request.form.get('question')
+
     if 'image' in request.files:
         # The image is a file uploaded from a device
         image = request.files['image']
-        image_path = 'Web_page/static/user_image.jpg'
+        image_path = 'templates/static/user_image.jpg'
         image.save(image_path)
-    else:
+    elif image_url:
         # The image is a URL
-        image_url = request.form['image_url']
-        image_path = 'Web_page/static/user_image.jpg'
+        image_path = 'templates/static/user_image.jpg'
         urllib.request.urlretrieve(image_url, image_path)
-
-    question = request.form['question']
+    else:
+        # No image was provided
+        return 'No image provided'
 
     # Predict the answer and answer type
     predicted_answer, predicted_answer_type, answerability = model.test_model(image_path = image_path, question = question)

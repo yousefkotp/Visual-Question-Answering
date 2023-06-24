@@ -143,7 +143,7 @@ VizWiz accuracy metric is the minimum between 1 and the number of humans that pr
 </p>
 
 ## Deployment
-To ease the process of running the application, we have provided two options for deployment: using Docker or using Python. We recommend using Docker, as it is easier to set up and run. However, if you prefer to use Python, you can follow the instructions below.
+To ease the process of running the application, we have provided two options for deployment: using Docker or using Python. We recommend using Docker, as it is easier to set up and run. However, if you prefer to use Python, you can follow the instructions below. However, you need to place the trained model in the `Saved_Models` folder with the name `model.pth`
 
 ### Using Docker
 1- Make sure to install [Docker](https://www.docker.com/) on your machine.

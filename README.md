@@ -139,7 +139,7 @@ VizWiz accuracy metric is the minimum between 1 and the number of humans that pr
 ### User Interface
 
 <p align="center">
-  <img src="Images/web_app.png" alt="Web Application" width="500"/>
+  <img src="Images/user_interface.png" alt="Web Application" width="500"/>
 </p>
 
 ## Deployment

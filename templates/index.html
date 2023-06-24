@@ -6,8 +6,8 @@
 
 </head>
 <body>
-    <h1>VQA Web App</h1>
-    <form id="predict-form" enctype="multipart/form-data">
+    <h1 id="heading">VQA Web App</h1>
+    <form id="predict-form" class="box" enctype="multipart/form-data">
 
         <label for="image_url">Image URL:</label>
         <input type="text" id="image_url" name="image_url"><br><br>
@@ -19,10 +19,15 @@
         <input type="text" id="question" name="question"><br><br>
 
         <input type="button" value="Submit" onclick="submitForm()">
-      </form>
-    <div id="result">
 
-    </div>
+        <div id="result">
+            <p id="answer">Answer: </p>
+            <p id="answer_type">Answer type: </p>
+            <p id="answerability">Answerable: </p> 
+        </div>
+    </form>
+    
+
 </body>
 <script src="{{ url_for('static', filename='script.js') }}"></script>
 </html>

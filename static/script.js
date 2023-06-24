@@ -6,13 +6,14 @@ function submitForm() {
     xhr.onload = function() {
       if (xhr.status === 200) {
         var resultDiv = document.getElementById("result");
-        // We will recieve object as a string, so we need to parse it to JSON
+
+        // We will receive object as a string, so we need to parse it to JSON
         var objectReceived = JSON.parse(xhr.responseText);
 
         var answer = objectReceived.answer;
         var answer_type = objectReceived.answer_type;
         var answerability = 1 - objectReceived.answerability;
-
+        
         resultDiv.innerHTML = "<p>Answer: " + answer + "</p>" +
                                 "<p>Answer type: " + answer_type + "</p>" +
                                 "<p>Answerable: " + answerability + "</p>";

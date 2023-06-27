@@ -57,13 +57,16 @@ For the training and validation sets, we used the official splits provided by th
 
 ### Data Preprocessing
 According to the paper we are implementing, we will have a policy to choose the most suitable answer out of the 10 answers to train the model on that answer, the policy for building a vocabulary is as follows:
+
 1- Choose the most frequent answer out of the 10 answers
+
 2- If there is a tie, we will choose the most frequent one in the entire set of all answers
+
 3- If there is a tie, we will choose the answer with the minimum Levenshtein distance to all tied answers
 
 We also need to one hot encode the answers, so we will have a vector of size 5410, where 5410 is the size of the vocabulary. We will use the [One Hot Encoder](https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.OneHotEncoder.html) from the [scikit-learn](https://scikit-learn.org/stable/) library to one hot encode the answers and answer type.
 
-Instead of using lazy processing and extract question and answer embeddings on the fly, we will extract them beforehand and save them in a pickle file. We will use the [CLIP](https://openai.com/blog/clip/) model to extract the image and questions embeddings.
+Instead of using lazy processing and extracting question and answer embeddings on the fly, we will extract them beforehand and save them in a pickle file. We will use the [CLIP](https://openai.com/blog/clip/) model to extract the image and questions embeddings.
 
 ## Model Architecture
 We will follow the architecture mentioned in [Less Is More](https://arxiv.org/abs/2206.05281) paper. The architecture goes as follows:
